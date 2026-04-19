@@ -65,44 +65,6 @@ LANGFUSE_SECRET_KEY=lf_sk_...
 
 > Postgres, Valkey, ClickHouse, RustFS console, code-server, and all exporters are bound to `127.0.0.1` only.
 
-## Architecture
-
-```
-                        +------------------+
-                        |     LiteLLM      |  :4000
-                        |  config gen on   |
-                        |     startup      |
-                        +--------+---------+
-                                 |
-          +----------------------+----------------------+
-          |                      |                      |
-   +------+------+      +--------+-------+    +---------+--------+
-   |  Postgres   |      |    Valkey      |    |    Presidio      |
-   |   :5432     |      |    :6379       |    | analyzer  :5002  |
-   |  litellm DB |      |    cache       |    | anonymizer:5001  |
-   |  langfuse DB|      +--------+-------+    +------------------+
-   +------+------+               |
-          |              +-------+--------+
-   +------+------+       |  otel-collector|  :8889 (Valkey metrics)
-   | Langfuse    |       +-------+--------+
-   | web :3000   |               |
-   | worker:3030 |       +-------+--------+
-   +------+------+       |   Prometheus   |  :9092
-          |              |  scrapes all   |
-   +------+------+       | +-----------+  |
-   |   RustFS    |       | | pg-export |  |
-   | :9090 (S3)  |       | | vk-export |  |
-   | :9091 (con) |       | | clickhouse|  |
-   +-------------+       | | litellm   |  |
-                         | | otel-col  |  |
-                         | +-----------+  |
-                         +----------------+
-
-   +-------------+
-   |  ClickHouse |  :8123 / :9000
-   +-------------+
-```
-
 ## code-server
 
 Browser-based VS Code at `http://localhost:8080` (no password — localhost-only).
