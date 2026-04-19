@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a0a0a;
+        font-family: "Space Grotesk", sans-serif;
+        color: #e4e4f0;
+      }
+      .scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a0a0a;
+      }
+      .scene-content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        padding: 100px 140px;
+        gap: 24px;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Glow decoratives */
+      .glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        z-index: 1;
+        pointer-events: none;
+      }
+      .glow-purple {
+        background: rgba(124, 58, 237, 0.15);
+        width: 600px;
+        height: 600px;
+      }
+      .glow-cyan {
+        background: rgba(6, 182, 212, 0.1);
+        width: 500px;
+        height: 500px;
+      }
+
+      /* Hairline rules */
+      .rule-h {
+        width: 100%;
+        height: 1px;
+        background: rgba(124, 58, 237, 0.2);
+      }
+      .rule-v {
+        width: 1px;
+        height: 100%;
+        background: rgba(124, 58, 237, 0.15);
+        position: absolute;
+      }
+
+      /* Typography */
+      .display-xl {
+        font-size: 140px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      .display-lg {
+        font-size: 72px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+      }
+      .display-md {
+        font-size: 48px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+      }
+      .label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 20px;
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8888aa;
+      }
+      .body-text {
+        font-size: 28px;
+        font-weight: 350;
+        line-height: 1.5;
+        color: #c0c0d4;
+      }
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 400;
+      }
+      .accent-purple { color: #a375f5; }
+      .accent-cyan { color: #06b6d4; }
+      .dim { color: #8888aa; }
+
+      /* ============ SCENE 1: TITLE ============ */
+      #scene1 { z-index: 1; }
+      #s1-glow1 { top: 200px; left: 500px; }
+      #s1-glow2 { top: 400px; right: 200px; }
+      .s1-content {
+        justify-content: center;
+        align-items: flex-start;
+        padding: 100px 160px;
+        gap: 32px;
+      }
+      #s1-tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 22px;
+        letter-spacing: 0.12em;
+        color: #06b6d4;
+        text-transform: uppercase;
+      }
+      #s1-title {
+        font-size: 160px;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+        line-height: 0.95;
+      }
+      #s1-subtitle {
+        font-size: 38px;
+        font-weight: 350;
+        color: #aaaac4;
+        max-width: 800px;
+        line-height: 1.4;
+      }
+      #s1-rule {
+        width: 200px;
+        height: 2px;
+        background: #7c3aed;
+      }
+      #s1-version {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 18px;
+        color: #8888aa;
+      }
+
+      /* Ghost text */
+      #s1-ghost {
+        position: absolute;
+        font-size: 320px;
+        font-weight: 900;
+        color: rgba(124, 58, 237, 0.04);
+        top: 100px;
+        right: -80px;
+        letter-spacing: -0.06em;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* ============ SCENE 2: THREE PILLARS ============ */
+      #scene2 { z-index: 2; opacity: 0; }
+      #s2-glow1 { top: 100px; left: 200px; }
+      #s2-glow2 { bottom: 100px; right: 300px; }
+      .s2-content {
+        padding: 80px 140px;
+        gap: 40px;
+      }
+      .s2-header {
+        display: flex;
+        align-items: baseline;
+        gap: 24px;
+      }
+      .s2-pillars {
+        display: flex;
+        gap: 48px;
+        flex: 1;
+        align-items: stretch;
+      }
+      .pillar {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 48px 40px;
+        border: 1px solid rgba(124, 58, 237, 0.15);
+        border-radius: 4px;
+        position: relative;
+      }
+      .pillar-icon {
+        font-size: 48px;
+        font-weight: 900;
+        line-height: 1;
+      }
+      .pillar-name {
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .pillar-tool {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 20px;
+        color: #06b6d4;
+      }
+      .pillar-desc {
+        font-size: 22px;
+        font-weight: 350;
+        color: #aaaac4;
+        line-height: 1.5;
+      }
+      .pillar-port {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 18px;
+        color: #8888aa;
+        margin-top: auto;
+      }
+      .pillar-accent {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+      }
+      .pillar:nth-child(1) .pillar-accent { background: #7c3aed; }
+      .pillar:nth-child(2) .pillar-accent { background: #06b6d4; }
+      .pillar:nth-child(3) .pillar-accent { background: #f59e0b; }
+      .pillar:nth-child(3) .pillar-icon { color: #f59e0b; }
+
+      /* ============ SCENE 3: DATA FLOW ============ */
+      #scene3 { z-index: 3; opacity: 0; }
+      #s3-glow1 { top: 300px; left: 700px; width: 800px; height: 800px; }
+      .s3-content {
+        padding: 80px 140px;
+        gap: 48px;
+      }
+      .flow-container {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        position: relative;
+        margin-bottom: 180px;
+      }
+      .flow-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        position: relative;
+      }
+      .flow-box {
+        width: 240px;
+        padding: 28px 20px;
+        border: 1px solid rgba(124, 58, 237, 0.25);
+        border-radius: 4px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: rgba(124, 58, 237, 0.04);
+      }
+      .flow-box-name {
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .flow-box-detail {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 16px;
+        color: #8888aa;
+      }
+      .flow-arrow {
+        font-size: 36px;
+        color: #7c3aed;
+        padding: 0 8px;
+        flex-shrink: 0;
+      }
+      .flow-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 16px;
+        color: #06b6d4;
+        text-align: center;
+      }
+      /* Side chain: Presidio hangs below LiteLLM */
+      .sidechain-wrapper {
+        position: relative;
+      }
+      .sidechain {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        padding-top: 8px;
+      }
+      .sidechain-arrow-down,
+      .sidechain-arrow-up {
+        font-size: 28px;
+        color: #f59e0b;
+        line-height: 1.2;
+      }
+      .sidechain-box {
+        width: 200px;
+        padding: 20px 16px;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 4px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        background: rgba(245, 158, 11, 0.04);
+      }
+      .sidechain-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+        color: #f59e0b;
+      }
+      .sidechain-connector {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .sidechain-connector-line {
+        width: 1px;
+        height: 16px;
+        background: rgba(245, 158, 11, 0.4);
+      }
+      .flow-bottom {
+        display: flex;
+        gap: 60px;
+        padding-top: 0;
+      }
+      .flow-callout {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 24px 32px;
+        border-left: 2px solid #06b6d4;
+      }
+      .flow-callout-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #06b6d4;
+      }
+      .flow-callout-text {
+        font-size: 20px;
+        font-weight: 350;
+        color: #aaaac4;
+        line-height: 1.4;
+      }
+
+      /* ============ SCENE 4: INFRASTRUCTURE ============ */
+      #scene4 { z-index: 4; opacity: 0; }
+      #s4-glow1 { bottom: 200px; left: 300px; }
+      #s4-glow2 { top: 150px; right: 100px; }
+      .s4-content {
+        padding: 80px 140px;
+        gap: 36px;
+      }
+      .infra-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+        flex: 1;
+        align-content: start;
+      }
+      .infra-card {
+        padding: 24px;
+        border: 1px solid rgba(124, 58, 237, 0.12);
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: rgba(124, 58, 237, 0.03);
+      }
+      .infra-card-name {
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .infra-card-role {
+        font-size: 17px;
+        font-weight: 350;
+        color: #b8b8d0;
+        line-height: 1.35;
+      }
+      .infra-card-port {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 16px;
+        color: #06b6d4;
+        margin-top: auto;
+        font-variant-numeric: tabular-nums;
+      }
+      .infra-category {
+        grid-column: 1 / -1;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 16px;
+        color: #8888aa;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding-top: 8px;
+        border-top: 1px solid rgba(124, 58, 237, 0.1);
+      }
+
+      /* ============ SCENE 5: CLOSING ============ */
+      #scene5 { z-index: 5; opacity: 0; }
+      #s5-glow1 { top: 250px; left: 600px; width: 700px; height: 700px; }
+      .s5-content {
+        justify-content: center;
+        align-items: flex-start;
+        padding: 100px 160px;
+        gap: 40px;
+      }
+      #s5-cmd {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 64px;
+        font-weight: 700;
+        color: #06b6d4;
+      }
+      #s5-cmd-prefix {
+        color: #8888aa;
+      }
+      .s5-endpoints {
+        display: flex;
+        gap: 48px;
+      }
+      .s5-endpoint {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .s5-endpoint-name {
+        font-size: 24px;
+        font-weight: 700;
+      }
+      .s5-endpoint-url {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 20px;
+        color: #06b6d4;
+      }
+      #s5-tagline {
+        font-size: 32px;
+        font-weight: 350;
+        color: #aaaac4;
+        max-width: 700px;
+        line-height: 1.4;
+      }
+      #s5-ghost {
+        position: absolute;
+        font-size: 280px;
+        font-weight: 900;
+        color: rgba(6, 182, 212, 0.03);
+        bottom: 50px;
+        right: -60px;
+        letter-spacing: -0.06em;
+        z-index: 1;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="llmstack-explainer" data-width="1920" data-height="1080" data-start="0" data-duration="33">
+
+      <!-- ======== SCENE 1: TITLE ======== -->
+      <div id="scene1" class="scene">
+        <div class="glow glow-purple" id="s1-glow1"></div>
+        <div class="glow glow-cyan" id="s1-glow2"></div>
+        <div id="s1-ghost">LLM</div>
+        <div class="scene-content s1-content">
+          <div id="s1-tag">docker compose infrastructure</div>
+          <div id="s1-title">LLMSTACK</div>
+          <div id="s1-rule"></div>
+          <div id="s1-subtitle">Production-ready LLM infrastructure with built-in observability, PII protection, and multi-model routing</div>
+          <div id="s1-version">v1.0 // 15 services // one command</div>
+        </div>
+      </div>
+
+      <!-- ======== SCENE 2: THREE PILLARS ======== -->
+      <div id="scene2" class="scene">
+        <div class="glow glow-purple" id="s2-glow1"></div>
+        <div class="glow glow-cyan" id="s2-glow2"></div>
+        <div class="scene-content s2-content">
+          <div class="s2-header">
+            <div class="display-lg" id="s2-title">Three Pillars</div>
+            <div class="label" id="s2-label">core services</div>
+          </div>
+          <div class="rule-h" id="s2-rule"></div>
+          <div class="s2-pillars">
+            <div class="pillar" id="s2-p1">
+              <div class="pillar-accent"></div>
+              <div class="pillar-icon accent-purple">//</div>
+              <div class="pillar-name">Proxy</div>
+              <div class="pillar-tool">LiteLLM</div>
+              <div class="pillar-desc">Multi-model gateway. Route to OpenAI, Anthropic, Mistral, Cohere from one API. Response caching via Redis.</div>
+              <div class="pillar-port">:4000</div>
+            </div>
+            <div class="pillar" id="s2-p2">
+              <div class="pillar-accent"></div>
+              <div class="pillar-icon accent-cyan">{}</div>
+              <div class="pillar-name">Observe</div>
+              <div class="pillar-tool">Langfuse</div>
+              <div class="pillar-desc">Trace every LLM call. Cost analytics, latency tracking, prompt management. ClickHouse-backed.</div>
+              <div class="pillar-port">:3000</div>
+            </div>
+            <div class="pillar" id="s2-p3">
+              <div class="pillar-accent"></div>
+              <div class="pillar-icon">[]</div>
+              <div class="pillar-name">Protect</div>
+              <div class="pillar-tool">Presidio</div>
+              <div class="pillar-desc">PII detection and anonymization. Names, emails, credit cards, IBANs stripped before reaching any LLM.</div>
+              <div class="pillar-port">:5001 / :5002</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== SCENE 3: DATA FLOW ======== -->
+      <div id="scene3" class="scene">
+        <div class="glow glow-purple" id="s3-glow1"></div>
+        <div class="scene-content s3-content">
+          <div class="s3-header">
+            <div class="display-lg" id="s3-title">Request Flow</div>
+            <div class="label" id="s3-label">data path</div>
+          </div>
+          <div class="rule-h" id="s3-rule"></div>
+          <div class="flow-container" id="s3-flow">
+            <div class="flow-step" id="s3-f1">
+              <div class="flow-box">
+                <div class="flow-box-name">Client</div>
+                <div class="flow-box-detail">API request</div>
+              </div>
+            </div>
+            <div class="flow-arrow" id="s3-a1">&rarr;</div>
+            <div class="flow-step sidechain-wrapper" id="s3-f2">
+              <div class="flow-box" style="border-color: rgba(124, 58, 237, 0.3);">
+                <div class="flow-box-name accent-purple">LiteLLM</div>
+                <div class="flow-box-detail">pre-call guardrail</div>
+              </div>
+              <div class="flow-label">proxy</div>
+              <!-- Presidio side chain -->
+              <div class="sidechain" id="s3-sidechain">
+                <div class="sidechain-arrow-down" id="s3-sc-down">&darr;</div>
+                <div class="sidechain-box" id="s3-sc-box">
+                  <div class="flow-box-name" style="color: #f59e0b;">Presidio</div>
+                  <div class="flow-box-detail">PII scan + anonymize</div>
+                </div>
+                <div class="sidechain-arrow-up" id="s3-sc-up">&uarr;</div>
+                <div class="sidechain-label">clean prompt returned</div>
+              </div>
+            </div>
+            <div class="flow-arrow" id="s3-a2">&rarr;</div>
+            <div class="flow-step" id="s3-f3">
+              <div class="flow-box">
+                <div class="flow-box-name">LLM Provider</div>
+                <div class="flow-box-detail">GPT / Claude / etc</div>
+              </div>
+            </div>
+            <div class="flow-arrow" id="s3-a3">&rarr;</div>
+            <div class="flow-step" id="s3-f4">
+              <div class="flow-box" style="border-color: rgba(6, 182, 212, 0.3);">
+                <div class="flow-box-name accent-cyan">Langfuse</div>
+                <div class="flow-box-detail">trace + store</div>
+              </div>
+              <div class="flow-label">observe</div>
+            </div>
+          </div>
+          <div class="flow-bottom" id="s3-bottom">
+            <div class="flow-callout" id="s3-c1">
+              <div class="flow-callout-title">Prompt Injection Detection</div>
+              <div class="flow-callout-text">Every request scanned for injection attempts before reaching any model</div>
+            </div>
+            <div class="flow-callout" id="s3-c2">
+              <div class="flow-callout-title">Response Caching</div>
+              <div class="flow-callout-text">Valkey-backed cache eliminates redundant API calls, cutting cost and latency</div>
+            </div>
+            <div class="flow-callout" id="s3-c3">
+              <div class="flow-callout-title">Prometheus Metrics</div>
+              <div class="flow-callout-text">Every service exports metrics. 7 scrape targets feed a single dashboard</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== SCENE 4: INFRASTRUCTURE ======== -->
+      <div id="scene4" class="scene">
+        <div class="glow glow-purple" id="s4-glow1"></div>
+        <div class="glow glow-cyan" id="s4-glow2"></div>
+        <div class="scene-content s4-content">
+          <div class="s2-header">
+            <div class="display-lg" id="s4-title">15 Services</div>
+            <div class="label" id="s4-label">docker compose</div>
+          </div>
+          <div class="rule-h" id="s4-rule"></div>
+          <div class="infra-grid" id="s4-grid">
+            <div class="infra-category">data layer</div>
+            <div class="infra-card" id="s4-c1">
+              <div class="infra-card-name">PostgreSQL</div>
+              <div class="infra-card-role">3 databases: litellm, langfuse, admin</div>
+              <div class="infra-card-port">:5432</div>
+            </div>
+            <div class="infra-card" id="s4-c2">
+              <div class="infra-card-name">Valkey</div>
+              <div class="infra-card-role">Redis-compatible cache and session store</div>
+              <div class="infra-card-port">:6379</div>
+            </div>
+            <div class="infra-card" id="s4-c3">
+              <div class="infra-card-name">ClickHouse</div>
+              <div class="infra-card-role">Columnar TSDB for trace analytics</div>
+              <div class="infra-card-port">:8123</div>
+            </div>
+            <div class="infra-card" id="s4-c4">
+              <div class="infra-card-name">RustFS</div>
+              <div class="infra-card-role">S3-compatible object storage for events</div>
+              <div class="infra-card-port">:9090</div>
+            </div>
+            <div class="infra-card" id="s4-c5">
+              <div class="infra-card-name">Prometheus</div>
+              <div class="infra-card-role">Metrics collection, 15-day retention</div>
+              <div class="infra-card-port">:9092</div>
+            </div>
+            <div class="infra-category">application layer</div>
+            <div class="infra-card" id="s4-c6">
+              <div class="infra-card-name accent-purple">LiteLLM</div>
+              <div class="infra-card-role">LLM proxy with guardrails and caching</div>
+              <div class="infra-card-port">:4000</div>
+            </div>
+            <div class="infra-card" id="s4-c7">
+              <div class="infra-card-name accent-cyan">Langfuse Web</div>
+              <div class="infra-card-role">Observability dashboard and project UI</div>
+              <div class="infra-card-port">:3000</div>
+            </div>
+            <div class="infra-card" id="s4-c8">
+              <div class="infra-card-name accent-cyan">Langfuse Worker</div>
+              <div class="infra-card-role">Background ingestion and analytics jobs</div>
+              <div class="infra-card-port">:3030</div>
+            </div>
+            <div class="infra-card" id="s4-c9">
+              <div class="infra-card-name" style="color: #f59e0b;">Presidio Analyzer</div>
+              <div class="infra-card-role">PII entity detection engine</div>
+              <div class="infra-card-port">:5002</div>
+            </div>
+            <div class="infra-card" id="s4-c10">
+              <div class="infra-card-name" style="color: #f59e0b;">Presidio Anonymizer</div>
+              <div class="infra-card-role">PII replacement before LLM processing</div>
+              <div class="infra-card-port">:5001</div>
+            </div>
+            <div class="infra-category">observability</div>
+            <div class="infra-card" id="s4-c11">
+              <div class="infra-card-name">OTel Collector</div>
+              <div class="infra-card-role">Telemetry aggregation</div>
+              <div class="infra-card-port">:8889</div>
+            </div>
+            <div class="infra-card" id="s4-c12">
+              <div class="infra-card-name">PG Exporter</div>
+              <div class="infra-card-role">Postgres metrics</div>
+              <div class="infra-card-port">:9187</div>
+            </div>
+            <div class="infra-card" id="s4-c13">
+              <div class="infra-card-name">Valkey Exporter</div>
+              <div class="infra-card-role">Redis metrics</div>
+              <div class="infra-card-port">:9121</div>
+            </div>
+            <div class="infra-card" id="s4-c14">
+              <div class="infra-card-name">Code Server</div>
+              <div class="infra-card-role">Web IDE with Claude Code CLI</div>
+              <div class="infra-card-port">:8080</div>
+            </div>
+            <div class="infra-card" id="s4-c15">
+              <div class="infra-card-name dim">RustFS Init</div>
+              <div class="infra-card-role">One-shot bucket creation</div>
+              <div class="infra-card-port">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== SCENE 5: CLOSING ======== -->
+      <div id="scene5" class="scene">
+        <div class="glow glow-purple" id="s5-glow1"></div>
+        <div id="s5-ghost">DEPLOY</div>
+        <div class="scene-content s5-content">
+          <div class="label" id="s5-label">get started</div>
+          <div id="s5-cmd"><span id="s5-cmd-prefix">$ </span>make up</div>
+          <div class="rule-h" id="s5-rule" style="width: 300px;"></div>
+          <div id="s5-tagline">One command spins up the entire stack. LLM proxy, observability, PII protection, monitoring, and a web IDE.</div>
+          <div class="s5-endpoints" id="s5-eps">
+            <div class="s5-endpoint" id="s5-e1">
+              <div class="s5-endpoint-name">LLM Proxy</div>
+              <div class="s5-endpoint-url">localhost:4000</div>
+            </div>
+            <div class="s5-endpoint" id="s5-e2">
+              <div class="s5-endpoint-name">Traces</div>
+              <div class="s5-endpoint-url">localhost:3000</div>
+            </div>
+            <div class="s5-endpoint" id="s5-e3">
+              <div class="s5-endpoint-name">Metrics</div>
+              <div class="s5-endpoint-url">localhost:9092</div>
+            </div>
+            <div class="s5-endpoint" id="s5-e4">
+              <div class="s5-endpoint-name">IDE</div>
+              <div class="s5-endpoint-url">localhost:8080</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+
+      /* ============ SCENE 1: TITLE (0 - 5.5s) ============ */
+
+      // Ambient glows
+      tl.fromTo("#s1-glow1", { scale: 0.8 }, { scale: 1.2, duration: 5, ease: "sine.inOut", yoyo: true, repeat: 0 }, 0);
+      tl.fromTo("#s1-glow2", { scale: 1.1 }, { scale: 0.9, duration: 4, ease: "sine.inOut", yoyo: true, repeat: 0 }, 0);
+
+      // Ghost text drift
+      tl.fromTo("#s1-ghost", { x: 0 }, { x: -60, duration: 5.5, ease: "sine.inOut" }, 0);
+
+      // Entrances
+      tl.from("#s1-tag", { y: 20, opacity: 0, duration: 0.5, ease: "power2.out" }, 0.2);
+      tl.from("#s1-title", { y: 60, opacity: 0, duration: 0.7, ease: "power3.out" }, 0.4);
+      tl.from("#s1-rule", { scaleX: 0, transformOrigin: "left center", duration: 0.5, ease: "power2.out" }, 0.8);
+      tl.from("#s1-subtitle", { y: 30, opacity: 0, duration: 0.6, ease: "sine.out" }, 1.0);
+      tl.from("#s1-version", { opacity: 0, duration: 0.4, ease: "power2.out" }, 1.4);
+
+      // Transition: blur crossfade to scene 2 at 4.5s
+      tl.to("#scene1", { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.5, ease: "power2.inOut" }, 4.5);
+      tl.set("#scene1", { visibility: "hidden" }, 5.0);
+      tl.fromTo("#scene2",
+        { filter: "blur(10px)", scale: 0.97, opacity: 0 },
+        { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, 4.6);
+
+      /* ============ SCENE 2: THREE PILLARS (5 - 11.5s) ============ */
+
+      // Ambient glows
+      tl.fromTo("#s2-glow1", { scale: 0.9 }, { scale: 1.15, duration: 6, ease: "sine.inOut" }, 5);
+      tl.fromTo("#s2-glow2", { scale: 1.0 }, { scale: 0.85, duration: 5, ease: "sine.inOut" }, 5);
+
+      // Entrances
+      tl.from(".s2-header .display-lg", { x: -40, opacity: 0, duration: 0.6, ease: "power3.out" }, 5.2);
+      tl.from("#s2-label", { x: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, 5.5);
+      tl.from("#s2-rule", { scaleX: 0, transformOrigin: "left center", duration: 0.4, ease: "power2.out" }, 5.6);
+
+      // Pillars stagger — each from different direction
+      tl.from("#s2-p1", { y: 50, opacity: 0, duration: 0.6, ease: "power3.out" }, 5.9);
+      tl.from("#s2-p2", { y: 60, opacity: 0, duration: 0.6, ease: "sine.out" }, 6.1);
+      tl.from("#s2-p3", { y: 70, opacity: 0, duration: 0.6, ease: "power2.out" }, 6.3);
+
+      // Transition: color dip to black at 10.5s
+      tl.to("#scene2", { opacity: 0, duration: 0.3, ease: "power2.in", overwrite: "auto" }, 10.5);
+      tl.set("#scene2", { visibility: "hidden" }, 10.8);
+      tl.fromTo("#scene3", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 10.85);
+
+      /* ============ SCENE 3: DATA FLOW (11 - 19s) ============ */
+
+      // Ambient glow
+      tl.fromTo("#s3-glow1", { scale: 0.85, rotation: 0 }, { scale: 1.1, rotation: 10, duration: 8, ease: "sine.inOut" }, 11);
+
+      // Header entrances — same pattern as Scene 2
+      tl.from("#s3-title", { x: -40, opacity: 0, duration: 0.6, ease: "power3.out" }, 11.2);
+      tl.from("#s3-label", { x: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, 11.5);
+      tl.from("#s3-rule", { scaleX: 0, transformOrigin: "left center", duration: 0.4, ease: "power2.out" }, 11.6);
+
+      // Main flow — Client → LiteLLM → LLM Provider → Langfuse
+      tl.from("#s3-f1", { scale: 0.9, opacity: 0, duration: 0.45, ease: "power2.out" }, 12.0);
+      tl.from("#s3-a1", { x: -15, opacity: 0, duration: 0.3, ease: "power3.out" }, 12.3);
+      tl.from("#s3-f2 > .flow-box", { scale: 0.9, opacity: 0, duration: 0.45, ease: "sine.out" }, 12.5);
+      tl.from("#s3-f2 > .flow-label", { opacity: 0, duration: 0.3, ease: "power2.out" }, 12.8);
+
+      // Sidechain — Presidio drops down from LiteLLM
+      tl.from("#s3-sc-down", { opacity: 0, y: -10, duration: 0.3, ease: "power2.out" }, 13.0);
+      tl.from("#s3-sc-box", { opacity: 0, y: -20, duration: 0.45, ease: "power3.out" }, 13.2);
+      tl.from("#s3-sc-up", { opacity: 0, y: 10, duration: 0.3, ease: "sine.out" }, 13.5);
+      tl.from(".sidechain-label", { opacity: 0, duration: 0.3, ease: "power2.out" }, 13.7);
+
+      // Continue main flow after sidechain
+      tl.from("#s3-a2", { x: -15, opacity: 0, duration: 0.3, ease: "power3.out" }, 14.0);
+      tl.from("#s3-f3", { scale: 0.9, opacity: 0, duration: 0.45, ease: "power2.out" }, 14.2);
+      tl.from("#s3-a3", { x: -15, opacity: 0, duration: 0.3, ease: "power3.out" }, 14.5);
+      tl.from("#s3-f4", { scale: 0.9, opacity: 0, duration: 0.45, ease: "sine.out" }, 14.7);
+
+      // Bottom callouts
+      tl.from("#s3-c1", { x: -30, opacity: 0, duration: 0.5, ease: "power2.out" }, 15.3);
+      tl.from("#s3-c2", { x: -30, opacity: 0, duration: 0.5, ease: "sine.out" }, 15.6);
+      tl.from("#s3-c3", { x: -30, opacity: 0, duration: 0.5, ease: "power3.out" }, 15.9);
+
+      // Transition: blur crossfade to scene 4 at 18s
+      tl.to("#scene3", { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.5, ease: "power2.inOut" }, 18.0);
+      tl.set("#scene3", { visibility: "hidden" }, 18.5);
+      tl.fromTo("#scene4",
+        { filter: "blur(10px)", scale: 0.97, opacity: 0 },
+        { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, 18.1);
+
+      /* ============ SCENE 4: INFRASTRUCTURE (18.5 - 26.5s) ============ */
+
+      // Ambient glows
+      tl.fromTo("#s4-glow1", { scale: 0.9 }, { scale: 1.2, duration: 7, ease: "sine.inOut" }, 18.5);
+      tl.fromTo("#s4-glow2", { scale: 1.1 }, { scale: 0.8, duration: 6, ease: "sine.inOut" }, 18.5);
+
+      // Header
+      tl.from("#s4-title", { x: -40, opacity: 0, duration: 0.6, ease: "power3.out" }, 18.8);
+      tl.from("#s4-label", { x: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, 19.0);
+      tl.from("#s4-rule", { scaleX: 0, transformOrigin: "left center", duration: 0.4, ease: "power2.out" }, 19.1);
+
+      // Category labels
+      tl.from(".infra-category", { opacity: 0, duration: 0.3, ease: "power2.out", stagger: { each: 0.8 } }, 19.4);
+
+      // Cards — stagger in groups by row
+      var dataCards = ["#s4-c1", "#s4-c2", "#s4-c3", "#s4-c4", "#s4-c5"];
+      var appCards = ["#s4-c6", "#s4-c7", "#s4-c8", "#s4-c9", "#s4-c10"];
+      var obsCards = ["#s4-c11", "#s4-c12", "#s4-c13", "#s4-c14", "#s4-c15"];
+
+      dataCards.forEach(function(sel, i) {
+        tl.from(sel, { y: 30, opacity: 0, duration: 0.4, ease: "power2.out" }, 19.6 + i * 0.1);
+      });
+      appCards.forEach(function(sel, i) {
+        tl.from(sel, { y: 30, opacity: 0, duration: 0.4, ease: "sine.out" }, 20.3 + i * 0.1);
+      });
+      obsCards.forEach(function(sel, i) {
+        tl.from(sel, { y: 30, opacity: 0, duration: 0.4, ease: "power3.out" }, 21.0 + i * 0.1);
+      });
+
+      // Transition: color dip to scene 5 at 25.5s
+      tl.to("#scene4", { opacity: 0, duration: 0.3, ease: "power2.in" }, 25.5);
+      tl.set("#scene4", { visibility: "hidden" }, 25.8);
+      tl.fromTo("#scene5", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 25.85);
+
+      /* ============ SCENE 5: CLOSING (26 - 33s) ============ */
+
+      // Ambient
+      tl.fromTo("#s5-glow1", { scale: 0.85 }, { scale: 1.15, duration: 6, ease: "sine.inOut" }, 26);
+      tl.fromTo("#s5-ghost", { x: 0 }, { x: -50, duration: 7, ease: "sine.inOut" }, 26);
+
+      // Entrances
+      tl.from("#s5-label", { opacity: 0, y: 15, duration: 0.4, ease: "power2.out" }, 26.2);
+      tl.from("#s5-cmd", { x: -40, opacity: 0, duration: 0.6, ease: "power3.out" }, 26.5);
+      tl.from("#s5-rule", { scaleX: 0, transformOrigin: "left center", duration: 0.5, ease: "sine.out" }, 27.0);
+      tl.from("#s5-tagline", { y: 25, opacity: 0, duration: 0.5, ease: "power2.out" }, 27.3);
+
+      // Endpoint cards stagger
+      tl.from("#s5-e1", { y: 20, opacity: 0, duration: 0.4, ease: "power3.out" }, 27.8);
+      tl.from("#s5-e2", { y: 20, opacity: 0, duration: 0.4, ease: "sine.out" }, 28.0);
+      tl.from("#s5-e3", { y: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, 28.2);
+      tl.from("#s5-e4", { y: 20, opacity: 0, duration: 0.4, ease: "power3.out" }, 28.4);
+
+      // Final scene exit — fade to black
+      tl.to("#scene5 .scene-content", { opacity: 0, y: -20, duration: 1.2, ease: "power2.in" }, 31.5);
+      tl.set("#scene5", { visibility: "hidden" }, 32.7);
+
+      window.__timelines["llmstack-explainer"] = tl;
+    </script>
+  </body>
+</html>

@@ -23,6 +23,7 @@ make up      # generates litellm config from .env, then starts all services
 | `make pull` | Pull latest images |
 | `make config` | Regenerate litellm config from `.env` without restarting |
 | `make reset` | Destroy all volumes and start fresh |
+| `make seed` | Create seed virtual keys in LiteLLM (idempotent) |
 
 ## API Keys
 
@@ -49,18 +50,18 @@ LANGFUSE_SECRET_KEY=lf_sk_...
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
-| **Langfuse** (web UI) | http://localhost:3000 | Sign up on first visit |
+| **Langfuse** (web UI) | http://localhost:3000 | `langfuse@langfuse.com` / `langfuse123` (pre-seeded) |
 | **LiteLLM** (proxy) | http://localhost:4000 | `LITELLM_MASTER_KEY` |
 | **RustFS** (S3 API) | http://localhost:9090 | `rustfsadmin` / `rustfsadmin` |
 | **RustFS** (console) | http://localhost:9091 | `rustfsadmin` / `rustfsadmin` |
 | **Prometheus** | http://localhost:9092 | No auth |
-| **code-server** (VS Code) | http://localhost:8080 | `CODESERVER_PASSWORD` |
+| **code-server** (VS Code) | http://localhost:8080 | No auth (localhost only) |
 | **Postgres** | localhost:5432 | `postgres` / `postgres` |
 | **Valkey** | localhost:6379 | password: `myredissecret` |
 | **ClickHouse** (HTTP) | localhost:8123 | `clickhouse` / `clickhouse` |
 | **ClickHouse** (native) | localhost:9000 | `clickhouse` / `clickhouse` |
 
-> Postgres, Valkey, ClickHouse, RustFS console, and all exporters are bound to `127.0.0.1` only.
+> Postgres, Valkey, ClickHouse, RustFS console, code-server, and all exporters are bound to `127.0.0.1` only.
 
 ## Architecture
 
@@ -99,6 +100,28 @@ LANGFUSE_SECRET_KEY=lf_sk_...
    |  ClickHouse |  :8123 / :9000
    +-------------+
 ```
+
+## code-server
+
+Browser-based VS Code at `http://localhost:8080` (no password — localhost-only).
+
+On first boot the custom entrypoint (`scripts/code-server-entrypoint.sh`) automatically:
+
+1. Installs Node.js + npm
+2. Installs the Claude Code CLI (`~/.local/bin/claude`)
+3. Installs the Claude Code VS Code extension
+
+These are persisted in the `codeserver_data` volume — subsequent boots skip installation.
+
+Claude Code is pre-configured to route through LiteLLM:
+
+| Variable | Value |
+|----------|-------|
+| `ANTHROPIC_AUTH_TOKEN` | `sk-claude-code` |
+| `ANTHROPIC_BASE_URL` | `http://litellm:4000` |
+| `ANTHROPIC_DEFAULT_MODEL` | `claude-sonnet-4-6` |
+
+The `sk-claude-code` key is seeded into LiteLLM by `make seed`.
 
 ## LiteLLM Config Generation
 
@@ -184,7 +207,7 @@ Override via `.env` or environment variables:
 | `ENCRYPTION_KEY` | (zeroed) | Langfuse encryption key — generate: `openssl rand -hex 32` |
 | `SALT` | `mysalt` | Langfuse salt |
 | `NEXTAUTH_SECRET` | `mysecret` | Langfuse NextAuth secret |
-| `CODESERVER_PASSWORD` | `changeme` | code-server web UI password |
+| `CODESERVER_PASSWORD` | — | Not used (auth disabled; access is localhost-only) |
 
 ## Volumes
 
@@ -196,6 +219,7 @@ Override via `.env` or environment variables:
 | `clickhouse_logs` | ClickHouse logs |
 | `rustfs_data` | RustFS object storage |
 | `prometheus_data` | Prometheus TSDB |
+| `codeserver_data` | code-server home dir (Claude Code CLI + extensions) |
 
 ## Files
 
@@ -210,4 +234,8 @@ Override via `.env` or environment variables:
 | `config/clickhouse-prometheus.xml` | Enables ClickHouse metrics endpoint |
 | `scripts/init-databases.sh` | Creates litellm + langfuse Postgres databases on first boot |
 | `scripts/generate-litellm-config.sh` | Generates LiteLLM config from available API keys |
+| `scripts/code-server-entrypoint.sh` | Installs Claude Code CLI + VS Code extension on first boot |
+| `scripts/seed-keys.sh` | Seeds LiteLLM virtual keys (run via `make seed`) |
+| `config/code-server.yaml` | code-server daemon config (bind addr, auth) |
+| `config/code-server-settings.json` | Default VS Code user settings for code-server |
 | `.env` | Secrets and API keys (not committed) |
