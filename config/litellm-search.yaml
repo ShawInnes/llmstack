@@ -1,0 +1,9 @@
+search_tools:
+  - search_tool_name: perplexity-search
+    litellm_params:
+      search_provider: perplexity
+      api_key: os.environ/PERPLEXITYAI_API_KEY
+  - search_tool_name: tavily-search
+    litellm_params:
+      search_provider: tavily
+      api_key: os.environ/TAVILY_API_KEY

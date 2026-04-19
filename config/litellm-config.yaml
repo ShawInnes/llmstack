@@ -1,0 +1,55 @@
+include:
+  - litellm-models.yaml
+  - litellm-search.yaml
+
+general_settings:
+  background_health_checks: false
+  disable_config_polling: true
+  store_model_in_db: true
+  store_prompts_in_spend_logs: true
+
+router_settings:
+  optional_pre_call_checks: [ "prompt_caching" ]
+
+guardrails:
+  - guardrail_name: "presidio-pii"
+    litellm_params:
+      guardrail: presidio
+      mode: "pre_call"
+      presidio_language: "en"
+
+litellm_settings:
+  callbacks:
+    - prometheus
+    - detect_prompt_injection
+
+  websearch_interception:
+    enabled_providers:
+      - openai # gpt-4o (no native search)
+      - codestral # codestral-latest (no native search)
+      - cohere # command-r-plus (no native search)
+      # anthropic + perplexity omitted — native web search support
+    search_tool_name: perplexity-search
+
+  success_callback:
+    - langfuse
+
+  failure_callback:
+    - langfuse
+
+  prompt_injection_params:
+    heuristics_check: true
+    similarity_check: true
+
+  cache: true
+  cache_params:
+    type: redis
+    host: valkey
+    port: 6379
+    password: os.environ/REDIS_AUTH
+    namespace: "litellm.caching.caching"
+    supported_call_types:               
+      - acompletion                                                                                    
+      - completion
+      - anthropic_messages
+    ttl: 3600

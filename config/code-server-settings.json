@@ -1,0 +1,9 @@
+{
+  "terminal.integrated.initialHint.copilotCli": false,
+  "chat.disableAIFeatures": true,
+
+  "workbench.activityBar.location": "default",
+  "workbench.sideBar.location": "left",
+  "workbench.startupEditor": "none",
+  "workbench.view.alwaysShowHeaderActions": true
+}
