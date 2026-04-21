@@ -1,4 +1,4 @@
-.PHONY: up down restart logs ps config reset pull seed help
+.PHONY: up down restart logs ps config reset pull seed trust help
 
 help:
 	@echo "Usage: make [target] [svc=<service>]"
@@ -14,6 +14,7 @@ help:
 	@echo "  config           Regenerate litellm config from .env (no restart)"
 	@echo "  reset            Destroy all volumes and start fresh"
 	@echo "  seed             Create seed virtual keys in LiteLLM"
+	@echo "  trust            Install Caddy's local CA into system trust store"
 
 .DEFAULT_GOAL := help
 
@@ -52,3 +53,7 @@ config:
 # Create seed virtual keys in LiteLLM (idempotent)
 seed:
 	./scripts/seed-keys.sh
+
+# Install Caddy's local CA into system trust store (run once after first `make up`)
+trust:
+	docker compose exec caddy caddy trust

@@ -1,0 +1,25 @@
+langfuse.localtest.me {
+	tls internal
+	reverse_proxy langfuse-web:3000
+}
+
+litellm.localtest.me {
+	tls internal
+	reverse_proxy litellm:4000
+}
+
+rustfs.localtest.me {
+	tls internal
+	reverse_proxy rustfs:9000
+}
+
+prometheus.localtest.me {
+	tls internal
+	reverse_proxy prometheus:9090
+}
+
+code-server.localtest.me {
+	tls internal
+	reverse_proxy code-server:8080
+}
+

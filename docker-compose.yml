@@ -301,6 +301,26 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
 
+  # === Caddy Reverse Proxy ===
+
+  caddy:
+    image: caddy:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - langfuse-web
+      - litellm
+      - rustfs
+      - prometheus
+      - code-server
+
   # === Code Server ===
 
   code-server:
@@ -377,4 +397,8 @@ volumes:
   codeserver_data:
     driver: local
   coder_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local
