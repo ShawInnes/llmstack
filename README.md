@@ -26,6 +26,7 @@ make up      # generates litellm config from .env, then starts all services
 | `make config`              | Regenerate litellm config from `.env` without restarting |
 | `make reset`               | Destroy all volumes and start fresh                      |
 | `make seed`                | Create seed virtual keys in LiteLLM (idempotent)         |
+| `make trust`               | Install Caddy's local CA into system trust store         |
 
 ## API Keys
 
@@ -50,24 +51,25 @@ LANGFUSE_SECRET_KEY=lf_sk_...
 
 ## Services & Endpoints
 
-| Service                   | URL                   | Credentials                                          |
-| ------------------------- | --------------------- | ---------------------------------------------------- |
-| **Langfuse** (web UI)     | http://localhost:3000 | `langfuse@langfuse.com` / `langfuse123` (pre-seeded) |
-| **LiteLLM** (proxy)       | http://localhost:4000 | `LITELLM_MASTER_KEY`                                 |
-| **RustFS** (S3 API)       | http://localhost:9090 | `rustfsadmin` / `rustfsadmin`                        |
-| **RustFS** (console)      | http://localhost:9091 | `rustfsadmin` / `rustfsadmin`                        |
-| **Prometheus**            | http://localhost:9092 | No auth                                              |
-| **code-server** (VS Code) | http://localhost:8080 | No auth (localhost only)                             |
-| **Postgres**              | localhost:5432        | `postgres` / `postgres`                              |
-| **Valkey**                | localhost:6379        | password: `myredissecret`                            |
-| **ClickHouse** (HTTP)     | localhost:8123        | `clickhouse` / `clickhouse`                          |
-| **ClickHouse** (native)   | localhost:9000        | `clickhouse` / `clickhouse`                          |
+Caddy provides HTTPS via `*.localtest.me` hostnames (which resolve to `127.0.0.1` — no `/etc/hosts` changes needed). Run `make trust` once after first `make up` to install Caddy's local CA so browsers trust the certificates.
 
-> Postgres, Valkey, ClickHouse, RustFS console, code-server, and all exporters are bound to `127.0.0.1` only.
+| Service                   | HTTPS URL                        | Credentials                                          |
+| ------------------------- | -------------------------------- | ---------------------------------------------------- |
+| **Langfuse** (web UI)     | https://langfuse.localtest.me    | `langfuse@langfuse.com` / `langfuse123` (pre-seeded) |
+| **LiteLLM** (proxy)       | https://litellm.localtest.me     | `LITELLM_MASTER_KEY`                                 |
+| **RustFS** (console)      | https://rustfs.localtest.me      | `rustfsadmin` / `rustfsadmin`                        |
+| **Prometheus**            | https://prometheus.localtest.me  | No auth                                              |
+| **code-server** (VS Code) | https://code-server.localtest.me | No auth                                              |
+| **Postgres**              | localhost:5432                   | `postgres` / `postgres`                              |
+| **Valkey**                | localhost:6379                   | password: `myredissecret`                            |
+| **ClickHouse** (HTTP)     | localhost:8123                   | `clickhouse` / `clickhouse`                          |
+| **ClickHouse** (native)   | localhost:9000                   | `clickhouse` / `clickhouse`                          |
+
+> Postgres, Valkey, ClickHouse, RustFS console, and all exporters are bound to `127.0.0.1` only.
 
 ## code-server
 
-Browser-based VS Code at `http://localhost:8080` (no password — localhost-only).
+Browser-based VS Code at `https://code-server.localtest.me` (no password — run `make trust` first).
 
 On first boot the custom entrypoint (`scripts/code-server-entrypoint.sh`) automatically:
 
@@ -184,6 +186,8 @@ Override via `.env` or environment variables:
 | `rustfs_data`     | RustFS object storage                               |
 | `prometheus_data` | Prometheus TSDB                                     |
 | `codeserver_data` | code-server home dir (Claude Code CLI + extensions) |
+| `caddy_data`      | Caddy TLS certificates and ACME state               |
+| `caddy_config`    | Caddy runtime config                                |
 
 ## Files
 
@@ -202,4 +206,5 @@ Override via `.env` or environment variables:
 | `scripts/seed-keys.sh`               | Seeds LiteLLM virtual keys (run via `make seed`)            |
 | `config/code-server.yaml`            | code-server daemon config (bind addr, auth)                 |
 | `config/code-server-settings.json`   | Default VS Code user settings for code-server               |
+| `config/Caddyfile`                   | Caddy reverse proxy config (HTTPS for all web services)     |
 | `.env`                               | Secrets and API keys (not committed)                        |

@@ -10,7 +10,7 @@ litellm.localtest.me {
 
 rustfs.localtest.me {
 	tls internal
-	reverse_proxy rustfs:9000
+	reverse_proxy rustfs:9001
 }
 
 prometheus.localtest.me {

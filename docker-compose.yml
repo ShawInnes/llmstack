@@ -23,8 +23,8 @@ services:
       CODER_DB_PASSWORD: ${CODER_DB_PASSWORD:-coder} # CHANGEME
       TZ: UTC
       PGTZ: UTC
-    ports:
-      - 127.0.0.1:5432:5432
+    # ports:
+    #   - 127.0.0.1:5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
@@ -35,8 +35,8 @@ services:
     command: >
       --requirepass ${REDIS_AUTH:-myredissecret}
       --maxmemory-policy noeviction
-    ports:
-      - 127.0.0.1:6379:6379
+    # ports:
+    #   - 127.0.0.1:6379:6379
     volumes:
       - valkey_data:/data
     healthcheck:
@@ -59,8 +59,8 @@ services:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
-    ports:
-      - 127.0.0.1:3030:3030
+    # ports:
+    #   - 127.0.0.1:3030:3030
     environment: &langfuse-worker-env
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
       DATABASE_URL: ${DATABASE_URL:-postgresql://langfuse:${LANGFUSE_DB_PASSWORD:-langfuse}@postgres:5432/langfuse} # CHANGEME
@@ -87,7 +87,7 @@ services:
       LANGFUSE_S3_MEDIA_UPLOAD_REGION: ${LANGFUSE_S3_MEDIA_UPLOAD_REGION:-auto}
       LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID: ${LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID:-rustfsadmin}
       LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY: ${LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY:-rustfsadmin} # CHANGEME
-      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: ${LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT:-http://localhost:9090}
+      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: ${LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT:-http://localhost:9000}
       LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: ${LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE:-true}
       LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: ${LANGFUSE_S3_MEDIA_UPLOAD_PREFIX:-media/}
       LANGFUSE_S3_BATCH_EXPORT_ENABLED: ${LANGFUSE_S3_BATCH_EXPORT_ENABLED:-false}
@@ -95,7 +95,7 @@ services:
       LANGFUSE_S3_BATCH_EXPORT_PREFIX: ${LANGFUSE_S3_BATCH_EXPORT_PREFIX:-exports/}
       LANGFUSE_S3_BATCH_EXPORT_REGION: ${LANGFUSE_S3_BATCH_EXPORT_REGION:-auto}
       LANGFUSE_S3_BATCH_EXPORT_ENDPOINT: ${LANGFUSE_S3_BATCH_EXPORT_ENDPOINT:-http://rustfs:9000}
-      LANGFUSE_S3_BATCH_EXPORT_EXTERNAL_ENDPOINT: ${LANGFUSE_S3_BATCH_EXPORT_EXTERNAL_ENDPOINT:-http://localhost:9090}
+      LANGFUSE_S3_BATCH_EXPORT_EXTERNAL_ENDPOINT: ${LANGFUSE_S3_BATCH_EXPORT_EXTERNAL_ENDPOINT:-http://localhost:9000}
       LANGFUSE_S3_BATCH_EXPORT_ACCESS_KEY_ID: ${LANGFUSE_S3_BATCH_EXPORT_ACCESS_KEY_ID:-rustfsadmin}
       LANGFUSE_S3_BATCH_EXPORT_SECRET_ACCESS_KEY: ${LANGFUSE_S3_BATCH_EXPORT_SECRET_ACCESS_KEY:-rustfsadmin} # CHANGEME
       LANGFUSE_S3_BATCH_EXPORT_FORCE_PATH_STYLE: ${LANGFUSE_S3_BATCH_EXPORT_FORCE_PATH_STYLE:-true}
@@ -115,8 +115,8 @@ services:
     image: docker.io/langfuse/langfuse:3
     restart: always
     depends_on: *langfuse-depends-on
-    ports:
-      - 3000:3000
+    # ports:
+    #   - 3000:3000
     environment:
       <<: *langfuse-worker-env
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-mysecret} # CHANGEME
@@ -142,9 +142,9 @@ services:
       - clickhouse_data:/var/lib/clickhouse
       - clickhouse_logs:/var/log/clickhouse-server
       - ./config/clickhouse-prometheus.xml:/etc/clickhouse-server/config.d/prometheus.xml
-    ports:
-      - 127.0.0.1:8123:8123
-      - 127.0.0.1:9000:9000
+    # ports:
+    #   - 127.0.0.1:8123:8123
+    #   - 127.0.0.1:9000:9000
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1
       interval: 5s
@@ -162,9 +162,9 @@ services:
       RUSTFS_CONSOLE_ENABLE: "true"
       RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-rustfsadmin} # CHANGEME
       RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-rustfsadmin} # CHANGEME
-    ports:
-      - 9090:9000
-      - 127.0.0.1:9091:9001
+    # ports:
+    #   - 9090:9000
+    #   - 127.0.0.1:9091:9001
     volumes:
       - rustfs_data:/data
     healthcheck:
@@ -195,8 +195,8 @@ services:
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
     environment:
       REDIS_AUTH: ${REDIS_AUTH:-myredissecret}
-    ports:
-      - 127.0.0.1:8889:8889
+    # ports:
+    #   - 127.0.0.1:8889:8889
     depends_on:
       valkey:
         condition: service_healthy
@@ -208,8 +208,8 @@ services:
     restart: always
     environment:
       DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/postgres?sslmode=disable"
-    ports:
-      - 127.0.0.1:9187:9187
+    # ports:
+    #   - 127.0.0.1:9187:9187
     depends_on:
       postgres:
         condition: service_healthy
@@ -220,8 +220,8 @@ services:
     environment:
       REDIS_ADDR: "valkey:6379"
       REDIS_PASSWORD: ${REDIS_AUTH:-myredissecret}
-    ports:
-      - 127.0.0.1:9121:9121
+    # ports:
+    #   - 127.0.0.1:9121:9121
     depends_on:
       valkey:
         condition: service_healthy
@@ -231,8 +231,8 @@ services:
   litellm:
     image: docker.litellm.ai/berriai/litellm:v1.83.9-nightly
     restart: always
-    ports:
-      - "4000:4000"
+    # ports:
+    #   - "4000:4000"
     volumes:
       - ./config:/app/config:ro
     command:
@@ -278,15 +278,15 @@ services:
     image: mcr.microsoft.com/presidio-analyzer:latest
     platform: linux/amd64
     restart: always
-    ports:
-      - 127.0.0.1:5002:3000
+    # ports:
+    #   - 127.0.0.1:5002:3000
 
   presidio-anonymizer:
     image: mcr.microsoft.com/presidio-anonymizer:latest
     platform: linux/amd64
     restart: always
-    ports:
-      - 127.0.0.1:5001:3000
+    # ports:
+    #   - 127.0.0.1:5001:3000
 
   prometheus:
     image: prom/prometheus
@@ -294,8 +294,8 @@ services:
     volumes:
       - prometheus_data:/prometheus
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9092:9090"
+    # ports:
+    #   - "9092:9090"
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -309,7 +309,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "443:443/udp"
     volumes:
       - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -327,8 +326,8 @@ services:
     image: codercom/code-server:latest
     restart: always
     entrypoint: /usr/local/bin/code-server-entrypoint.sh
-    ports:
-      - "127.0.0.1:8080:8080"
+    # ports:
+    #   - "127.0.0.1:8080:8080"
     volumes:
       - ./scripts/code-server-entrypoint.sh:/usr/local/bin/code-server-entrypoint.sh:ro
       - ./config/code-server.yaml:/etc/code-server/config.yaml:ro
