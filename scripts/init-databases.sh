@@ -14,3 +14,11 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     CREATE DATABASE langfuse OWNER langfuse;
     GRANT ALL PRIVILEGES ON DATABASE langfuse TO langfuse;
 EOSQL
+
+
+# Create the coder database and user
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    CREATE USER coder WITH PASSWORD '${CODER_DB_PASSWORD:-coder}';
+    CREATE DATABASE coder OWNER coder;
+    GRANT ALL PRIVILEGES ON DATABASE coder TO coder;
+EOSQL

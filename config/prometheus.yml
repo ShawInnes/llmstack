@@ -31,3 +31,8 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
+
+  - job_name: 'coder'
+    static_configs:
+      - targets: ['coder:2112']
+    metrics_path: /metrics

@@ -20,6 +20,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-postgres}
       LITELLM_DB_PASSWORD: ${LITELLM_DB_PASSWORD:-litellm} # CHANGEME
       LANGFUSE_DB_PASSWORD: ${LANGFUSE_DB_PASSWORD:-langfuse} # CHANGEME
+      CODER_DB_PASSWORD: ${CODER_DB_PASSWORD:-coder} # CHANGEME
       TZ: UTC
       PGTZ: UTC
     ports:
@@ -237,7 +238,7 @@ services:
     command:
       - "--config=/app/config/litellm-config.yaml"
     environment:
-      DATABASE_URL: "postgresql://litellm:${LITELLM_DB_PASSWORD:-litellm}@postgres:5432/litellm"
+      DATABASE_URL: "postgresql://litellm:${LITELLM_DB_PASSWORD:-litellm}@postgres:5432/litellm?sslmode=disable"
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
       LITELLM_SALT_KEY: ${LITELLM_SALT_KEY}
       REDIS_AUTH: ${REDIS_AUTH:-myredissecret}
@@ -332,6 +333,34 @@ services:
       retries: 5
       start_period: 30s
 
+  # coder:
+  #   image: ${CODER_REPO:-ghcr.io/coder/coder}:${CODER_VERSION:-latest}
+  #   user: root
+  #   ports:
+  #     - "7080:7080"
+  #   environment:
+  #     CODER_PG_CONNECTION_URL: postgresql://coder:${CODER_DB_PASSWORD:-coder}@postgres:5432/coder?sslmode=disable # CHANGEME
+  #     CODER_HTTP_ADDRESS: "0.0.0.0:7080"
+  #     # You'll need to set CODER_ACCESS_URL to an IP or domain
+  #     # that workspaces can reach. This cannot be localhost
+  #     # or 127.0.0.1 for non-Docker templates!
+  #     CODER_ACCESS_URL: "${CODER_ACCESS_URL:-http://127.0.0.1:7080}"
+  #     CODER_PROMETHEUS_ENABLE: "true"
+  #     CODER_PROMETHEUS_ADDRESS: "0.0.0.0:2112"
+  #   # If the coder user does not have write permissions on
+  #   # the docker socket, you can uncomment the following
+  #   # lines and set the group ID to one that has write
+  #   # permissions on the docker socket.
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     # Run "docker volume rm coder_coder_home" to reset the dev tunnel url (https://abc.xyz.try.coder.app).
+  #     # This volume is not required in a production environment - you may safely remove it.
+  #     # Coder can recreate all the files it needs on restart.
+  #     - coder_data:/home/coder
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+
 volumes:
   postgres_data:
     driver: local
@@ -346,4 +375,6 @@ volumes:
   prometheus_data:
     driver: local
   codeserver_data:
+    driver: local
+  coder_data:
     driver: local
