@@ -1,0 +1,34 @@
+services:
+  code-server:
+    image: codercom/code-server:latest
+    restart: always
+    entrypoint: /usr/local/bin/code-server-entrypoint.sh
+    # ports:
+    #   - "127.0.0.1:8080:8080"
+    volumes:
+      - ./scripts/code-server-entrypoint.sh:/usr/local/bin/code-server-entrypoint.sh:ro
+      - ./config/code-server.yaml:/etc/code-server/config.yaml:ro
+      - ./config/code-server-settings.json:/etc/code-server/settings.json:ro
+      - .:/home/coder/llmstack
+      - codeserver_data:/home/coder
+    environment:
+      ANTHROPIC_AUTH_TOKEN: "sk-claude-code"
+      ANTHROPIC_BASE_URL: "http://litellm:4000"
+      ANTHROPIC_DEFAULT_MODEL: "claude-sonnet-4-6"
+      ANTHROPIC_DEFAULT_SONNET_MODEL: "claude-sonnet-4-6"
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: "claude-haiku-4-5"
+      ANTHROPIC_DEFAULT_OPUS_MODEL: "claude-opus-4-7"
+      ANTHROPIC_CUSTOM_HEADERS: "x-litellm-end-user-id: enduser@example.com"
+    depends_on:
+      litellm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  codeserver_data:
+    driver: local

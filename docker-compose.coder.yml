@@ -1,0 +1,32 @@
+services:
+  coder:
+    image: ${CODER_REPO:-ghcr.io/coder/coder}:${CODER_VERSION:-latest}
+    user: root
+    ports:
+      - "7080:7080"
+    environment:
+      CODER_PG_CONNECTION_URL: postgresql://coder:${CODER_DB_PASSWORD:-coder}@postgres:5432/coder?sslmode=disable # CHANGEME
+      CODER_HTTP_ADDRESS: "0.0.0.0:7080"
+      # You'll need to set CODER_ACCESS_URL to an IP or domain
+      # that workspaces can reach. This cannot be localhost
+      # or 127.0.0.1 for non-Docker templates!
+      CODER_ACCESS_URL: "${CODER_ACCESS_URL:-http://127.0.0.1:7080}"
+      CODER_PROMETHEUS_ENABLE: "true"
+      CODER_PROMETHEUS_ADDRESS: "0.0.0.0:2112"
+    # If the coder user does not have write permissions on
+    # the docker socket, you can uncomment the following
+    # lines and set the group ID to one that has write
+    # permissions on the docker socket.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Run "docker volume rm coder_coder_home" to reset the dev tunnel url (https://abc.xyz.try.coder.app).
+      # This volume is not required in a production environment - you may safely remove it.
+      # Coder can recreate all the files it needs on restart.
+      - coder_data:/home/coder
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  coder_data:
+    driver: local

@@ -23,3 +23,7 @@ code-server.localtest.me {
 	reverse_proxy code-server:8080
 }
 
+coder.localtest.me {
+	tls internal
+	reverse_proxy coder:7080
+}
